@@ -80,10 +80,19 @@ namespace OTTProject
             XDocument root = GenerateRoot();
             foreach (var program in programs)
             {
+                // need to check if generators returns an empty list
                 foreach (var tuple in GetGenerators())
                 {
-                    root.Root.Element(tuple.Item1)
-                        .Add(tuple.Item2(program));
+                    // need to check if element is null
+                    try
+                    {
+                        root.Root.Element(tuple.Item1)
+                            .Add(tuple.Item2(program));
+                    } catch (Exception e)
+                    {
+                        string message = "error invoking child generator: " + program.ToString() + " " + e.Message;
+                        Logger.Log(message);
+                    }
                 }
             }
             return root;
