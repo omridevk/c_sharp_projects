@@ -76,6 +76,11 @@ namespace OTTProject
             };
         }
 
+        /// <summary>
+        /// Public API
+        /// Start the generate process, call parent generate
+        /// can do more stuff if needed.
+        /// </summary>
         public void Generate()
         {
             IEnumerable<XElement> programmes = GetProgrammes();
@@ -91,6 +96,10 @@ namespace OTTProject
             }
         }
 
+        /// <summary>
+        /// Get all programmes elements from the original XML.
+        /// </summary>
+        /// <returns></returns>
         private IEnumerable<XElement> GetProgrammes()
         {
             return from programme in _RootElement.Elements(_ns + "programme")
@@ -103,6 +112,11 @@ namespace OTTProject
             return Path.GetFileName(_file);
         }
        
+        /// <summary>
+        /// Generate a program element with all it's children
+        /// </summary>
+        /// <param name="program"></param>
+        /// <returns></returns>
         private XElement GeneratePrograms(XElement program)
         {
             IEnumerable<XElement> metaTags = GenerateMeta(program);
@@ -120,6 +134,11 @@ namespace OTTProject
 
         }
 
+        /// <summary>
+        /// Generate meta tag for each program
+        /// </summary>
+        /// <param name="program"></param>
+        /// <returns></returns>
         private IEnumerable<XElement> GenerateMeta(XElement program)
         {
             IEnumerable<XElement> metas = program.Elements(_ns + "metas");

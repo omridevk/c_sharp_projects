@@ -7,7 +7,14 @@ namespace OTTProject
        where TKey : IComparable
 
     {
+        /// <summary>
+        /// the current priority queue is using Minimum Binary Heap.
+        /// </summary>
         private readonly MinBinaryHeap<TKey, TValue> _minHeap = new MinBinaryHeap<TKey, TValue>();
+
+        /// <summary>
+        /// lock to support threading, only one thread can access the lock.
+        /// </summary>
         private readonly object _lock = new object();
 
 
@@ -22,6 +29,10 @@ namespace OTTProject
             Enqueue(new KeyValuePair<TKey, TValue>(priority, tvalue));
         }
 
+        /// <summary>
+        /// support passing KeyValuePair construct.
+        /// </summary>
+        /// <param name="item"></param>
         public void Enqueue(KeyValuePair<TKey, TValue> item)
         {
             Logger.Log("added item to queue:" + item.Value.ToString() + "with priority: " + item.Key);
