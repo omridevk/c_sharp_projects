@@ -50,7 +50,7 @@ namespace OTTProject
             catch (Exception e)
             {
                 Logger.Log(e.Message);
-                throw new FileNotFoundException(e.Message);
+                throw new Exception(e.Message);
             }
             return xelement;
         }
@@ -61,6 +61,9 @@ namespace OTTProject
         /// <returns></returns>
         private XDocument GenerateRoot()
         {
+            if (String.IsNullOrEmpty(RootName)) {
+                throw new Exception("Implementer didn't provide a root document name");
+            }
             return new XDocument(
                new XDeclaration("1.0", "UTF-8", null),
                new XElement(RootName)
@@ -74,7 +77,15 @@ namespace OTTProject
         /// <returns></returns>
         protected XDocument Generate(IEnumerable<XElement> programs)
         {
-            XDocument root = GenerateRoot();
+            XDocument root = default(XDocument);
+            try
+            {
+                root = GenerateRoot();
+            } catch(Exception e)
+            {
+                Logger.Log(e.Message);
+                return root;
+            }
             foreach (var program in programs)
             {
                 // need to check if generators returns an empty list

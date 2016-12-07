@@ -27,6 +27,8 @@ namespace OTTProject
         /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
         /// </summary>
         private XNamespace _ns { get; }
+
+
         /// <summary>
         /// Generated root element name
         /// </summary>
@@ -133,7 +135,7 @@ namespace OTTProject
         }
 
         /// <summary>
-        /// Generate meta tag for each program
+        /// Generate meta tag for a given program
         /// </summary>
         /// <param name="program"></param>
         /// <returns></returns>

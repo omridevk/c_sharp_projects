@@ -63,7 +63,7 @@ namespace OTTProject
             {
                 return dt.ToString(outputPattern);
             }
-
+            Logger.Log("error parsing time string: " + time + "input pattern: " + inputPattern);
             return "";
         }
 
@@ -97,6 +97,7 @@ namespace OTTProject
             {
                 return result;
             }
+            Logger.Log("element: " + name + " not found, creating new");
             root.Add(new XElement(name));
             return root.Element(name);
 
