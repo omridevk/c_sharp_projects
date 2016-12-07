@@ -63,9 +63,7 @@ namespace OTTProject
         {
             return new XDocument(
                new XDeclaration("1.0", "UTF-8", null),
-               new XElement(RootName
-                
-               )
+               new XElement(RootName)
            );
         }
     
