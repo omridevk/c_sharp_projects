@@ -49,8 +49,6 @@ namespace OTTProject
             }
         }
 
- 
-
         /// <summary>
         /// set the file name and namespace attributes
         /// </summary>
@@ -71,8 +69,8 @@ namespace OTTProject
         {
             return new List<Tuple<string, Func<XElement, XElement>>>
             {
-                new Tuple<string, Func<XElement, XElement>>("programs", GeneratePrograms),
-                new Tuple<string, Func<XElement, XElement>>("schedules", GenerateteSchedules)
+                new Tuple<string, Func<XElement, XElement>>("schedules", GenerateteSchedules),
+                new Tuple<string, Func<XElement, XElement>>("programs", GeneratePrograms)
             };
         }
 

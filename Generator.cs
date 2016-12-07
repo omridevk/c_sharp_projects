@@ -63,9 +63,8 @@ namespace OTTProject
         {
             return new XDocument(
                new XDeclaration("1.0", "UTF-8", null),
-               new XElement(RootName,
-                   new XElement("schedules"),
-                   new XElement("programs")
+               new XElement(RootName
+                
                )
            );
         }
@@ -86,8 +85,9 @@ namespace OTTProject
                     // need to check if element is null
                     try
                     {
-                        root.Root.Element(tuple.Item1)
+                        Helpers.FirstOrCreate(tuple.Item1, root.Root)
                             .Add(tuple.Item2(program));
+                        Logger.Log("generated children elements for: " + tuple.Item1);
                     } catch (Exception e)
                     {
                         string message = "error invoking child generator: " + program.ToString() + " " + e.Message;

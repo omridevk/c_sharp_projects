@@ -89,5 +89,17 @@ namespace OTTProject
             Logger.Log(message);
             return "";
         }
+
+        public static XElement FirstOrCreate(string name, XElement root)
+        {
+            XElement result = root.Element(name);
+            if (result != null)
+            {
+                return result;
+            }
+            root.Add(new XElement(name));
+            return root.Element(name);
+
+        }
     }
 }
