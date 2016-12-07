@@ -16,7 +16,7 @@ namespace OTTProject
         /// Get A list of generators functions, will be used on the root when generating.
         /// </summary>
         /// <returns></returns>
-        protected abstract IList<Helpers.RefDelegate<XElement, XDocument, bool>> GetTransformations();
+        protected abstract IList<Tuple<string,Func<XElement, XElement>>> GetGenerators();
 
         /// <summary>
         /// Generated root element name
@@ -80,9 +80,10 @@ namespace OTTProject
             XDocument root = GenerateRoot();
             foreach (var program in programs)
             {
-                foreach (var func in GetTransformations())
+                foreach (var tuple in GetGenerators())
                 {
-                    func(program, ref root);
+                    root.Root.Element(tuple.Item1)
+                        .Add(tuple.Item2(program));
                 }
             }
             return root;

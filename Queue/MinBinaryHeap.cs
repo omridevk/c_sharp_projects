@@ -6,7 +6,7 @@ namespace OTTProject
     public sealed class MinBinaryHeap<TKey, TValue> where TKey : IComparable
     {
 
-        private readonly List<KeyValuePair<TKey, TValue>> _items = new List<KeyValuePair<TKey, TValue>>();
+        private readonly IList<KeyValuePair<TKey, TValue>> _items = new List<KeyValuePair<TKey, TValue>>();
 
         /*
         // support a way of providing key and value pair.

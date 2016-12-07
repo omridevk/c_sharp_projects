@@ -16,9 +16,15 @@ namespace OTTProject
         /// Root element to loaded XML
         /// </summary>
         private XElement _RootElement;
-        private string _file;
+
+
         /// <summary>
-        /// XML Namespace to use in queries! possible bugs if not added as prefix!
+        /// hold the input XML file name
+        /// </summary>
+        private string _file;
+
+        /// <summary>
+        /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
         /// </summary>
         private XNamespace _ns { get; }
         /// <summary>
@@ -31,6 +37,10 @@ namespace OTTProject
                 return "XTVD";
             }
         }
+
+        /// <summary>
+        /// Reference to the rootElement.
+        /// </summary>
         protected override XElement RootElement
         {
             get
@@ -41,6 +51,10 @@ namespace OTTProject
 
  
 
+        /// <summary>
+        /// set the file name and namespace attributes
+        /// </summary>
+        /// <param name="file"></param>
         public XTVDGenerator(string file)
         {
             _RootElement = Load(file);
@@ -49,12 +63,16 @@ namespace OTTProject
             _file = Helpers.GetPath(file, "_XTVD");
         }
 
-        protected override IList<Helpers.RefDelegate<XElement, XDocument, bool>> GetTransformations()
+        /// <summary>
+        /// Get a list that contains a tuple of string and lamdas/delegates that generates 
+        /// </summary>
+        /// <returns></returns>
+        protected override IList<Tuple<string, Func<XElement, XElement>>> GetGenerators()
         {
-            return new List<Helpers.RefDelegate<XElement, XDocument, bool>>
+            return new List<Tuple<string, Func<XElement, XElement>>>
             {
-                GeneratePrograms,
-                GenerateteSchedules
+                new Tuple<string, Func<XElement, XElement>>("programs", GeneratePrograms),
+                new Tuple<string, Func<XElement, XElement>>("schedules", GenerateteSchedules)
             };
         }
 
@@ -85,24 +103,21 @@ namespace OTTProject
             return Path.GetFileName(_file);
         }
        
-        private bool GeneratePrograms(XElement program, ref XDocument xdoc)
+        private XElement GeneratePrograms(XElement program)
         {
             IEnumerable<XElement> metaTags = GenerateMeta(program);
-            xdoc.Root.Element("programs")
-                .Add(
-                    new XElement("program",
-                        new XAttribute("id", (string)program.Attribute("external_id")),
-                        new XElement("series"),
-                        new XElement("title", (string)program.Element(_ns + "title")),
-                        new XElement("subtitle"),
-                        new XElement("description", (string)program.Element(_ns + "desc")),
-                        new XElement("showType"),
-                        new XElement("year"),
-                        new XElement("mpaaRating"),
-                        metaTags
-                    )
-                );
-            return true;
+            return new XElement("program",
+                new XAttribute("id", (string)program.Attribute("external_id")),
+                new XElement("series"),
+                new XElement("title", (string)program.Element(_ns + "title")),
+                new XElement("subtitle"),
+                new XElement("description", (string)program.Element(_ns + "desc")),
+                new XElement("showType"),
+                new XElement("year"),
+                new XElement("mpaaRating"),
+                metaTags
+            );
+
         }
 
         private IEnumerable<XElement> GenerateMeta(XElement program)
@@ -126,7 +141,7 @@ namespace OTTProject
             return transformed;
         }
 
-        private bool GenerateteSchedules(XElement program, ref XDocument root)
+        private XElement GenerateteSchedules(XElement program)
         {
             string start = Helpers.FormatTime(
                 (string)program.Attribute("start"),
@@ -139,14 +154,11 @@ namespace OTTProject
                 XTVDTimeFormatEnum.XTVD_DURATION_TIME_FORMAT
             ),
             id = (string)program.Attribute("external_id");
-            root.Root.Element("schedules").Add(
-                new XElement("schedule",
-                    new XAttribute("program",id),
+            return new XElement("schedule",
+                    new XAttribute("program", id),
                     new XAttribute("time", start),
                     new XAttribute("duration", duration)
-                    )
-            );
-            return true;
+                    );
         }
         
     }
