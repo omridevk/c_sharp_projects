@@ -49,7 +49,7 @@ namespace OTTProject
             }
             catch (Exception e)
             {
-                Logger.Log(e.Message);
+                Logger.Error(e.Message);
                 throw new Exception(e.Message);
             }
             return xelement;
@@ -86,10 +86,11 @@ namespace OTTProject
                 Logger.Error(e.Message);
                 return root;
             }
+            var generatorsList = GetGenerators();
             foreach (var program in programs)
             {
                 // need to check if generators returns an empty list
-                foreach (var tuple in GetGenerators())
+                foreach (var tuple in generatorsList)
                 {
                     // need to check if element is null
                     try
