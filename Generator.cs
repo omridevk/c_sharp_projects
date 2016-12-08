@@ -83,7 +83,7 @@ namespace OTTProject
                 root = GenerateRoot();
             } catch(Exception e)
             {
-                Logger.Log(e.Message);
+                Logger.Error(e.Message);
                 return root;
             }
             foreach (var program in programs)
@@ -99,8 +99,8 @@ namespace OTTProject
                         Logger.Log("generated children elements for: " + tuple.Item1);
                     } catch (Exception e)
                     {
-                        string message = "error invoking child generator: " + program.ToString() + " " + e.Message;
-                        Logger.Log(message);
+                        string message = "error invoking child generator: " + program.ToString() + " error:" + e.Message;
+                        Logger.Error(message);
                     }
                 }
             }

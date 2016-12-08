@@ -63,7 +63,7 @@ namespace OTTProject
             {
                 return dt.ToString(outputPattern);
             }
-            Logger.Log("error parsing time string: " + time + "input pattern: " + inputPattern);
+            Logger.Error("error parsing time string: " + time + "input pattern: " + inputPattern);
             return "";
         }
 
@@ -86,7 +86,7 @@ namespace OTTProject
                 return duration.ToString(durationPattern);
             }
             string message = "error parsing the start/time program id: " + (string)program.Attribute("external_id");
-            Logger.Log(message);
+            Logger.Error(message);
             return "";
         }
 

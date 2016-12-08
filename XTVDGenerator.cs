@@ -92,7 +92,7 @@ namespace OTTProject
             }
             catch (Exception e)
             {
-                Logger.Log("error saving file: " + e.Message);
+                Logger.Error("error saving file: " + e.Message);
             }
         }
 

@@ -32,6 +32,12 @@ namespace OTTProject
             Logger.Log(message, Logger._w);
         }
 
+        public static void Error(string message)
+        {
+            message = "[error]:" + message;
+            Logger.Log(message);
+        }
+
         /// <summary>
         /// private for ease of use (no need to pass TextWriter instance)
         /// </summary>

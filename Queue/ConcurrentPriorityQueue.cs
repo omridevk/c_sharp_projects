@@ -25,7 +25,6 @@ namespace OTTProject
         /// <param name="tvalue"></param>
         public void Enqueue(TKey priority, TValue tvalue)
         {
-
             Enqueue(new KeyValuePair<TKey, TValue>(priority, tvalue));
         }
 
@@ -52,8 +51,9 @@ namespace OTTProject
             {
                 result = _minHeap.Peek();
             }
-            catch (Exception _)
+            catch (Exception e)
             {
+                Logger.Error("error peeking the queue: " + e.Message);
                 return false;
             }
             return true;
@@ -70,8 +70,13 @@ namespace OTTProject
             result = default(KeyValuePair<TKey, TValue>);
             lock (_lock)
             {
-                if (_minHeap.Count == 0) return false;
+                if (_minHeap.Count == 0)
+                {
+                    Logger.Error("can't remove from heap, it is empty!");
+                    return false;
+                }
                 result = _minHeap.Remove();
+                Logger.Log("removed item from the queue" + result.Value);
                 return true;
             }
         }
