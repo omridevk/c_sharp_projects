@@ -33,7 +33,7 @@ namespace OTTProject.Queue
         /// <param name="item"></param>
         public void Enqueue(KeyValuePair<TKey, TValue> item)
         {
-            Logger.Log("added item to queue: " + item.Value.ToString() + " with priority: " + item.Key);
+            Logger.Info("added item to queue: " + item.Value.ToString() + " with priority: " + item.Key);
             lock (_lock) _minHeap.Insert(item);
         }
 
@@ -71,11 +71,11 @@ namespace OTTProject.Queue
             {
                 if (_minHeap.Count == 0)
                 {
-                    Logger.Warning("can't remove from heap, it is empty!");
+                    Logger.Info("can't remove from heap, it is empty!");
                     return false;
                 }
                 result = _minHeap.Remove();
-                Logger.Log("removed item from the queue " + result.Value + " with priority: " + result.Key);
+                Logger.Info("removed item from the queue " + result.Value + " with priority: " + result.Key);
                 return true;
             }
         }

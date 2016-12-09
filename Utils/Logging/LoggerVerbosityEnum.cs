@@ -4,11 +4,12 @@
     {
         public enum LEVEL
         {
-            DEBUG = 1,
-            INFO = 2,
-            WARNING = 3,
-            ERROR = 4,
-            CRITICAL = 5
+            NOTSET = 0,
+            DEBUG = 10,
+            INFO = 20,
+            WARNING = 30,
+            ERROR = 40,
+            CRITICAL = 50
         }
     }
 }

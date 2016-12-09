@@ -20,12 +20,7 @@ namespace OTTProject
         /// Instance of a concurrent priority queue to play with.
         /// </summary>
         private static ConcurrentPriorityQueue<int, IGenerator> _queue = new ConcurrentPriorityQueue<int, IGenerator>();
-
-        /// <summary>
-        /// Simple flag if user want to quit we want to make sure no thread is running.
-        /// </summary>
-        private static bool _Idle = true;
-
+        
         /// <summary>
         /// Instance of random to be used when setting item's priority before inserting to queue.
         /// </summary>
@@ -33,25 +28,13 @@ namespace OTTProject
 
         private static readonly object _lock = new object();
 
-        /// <summary>
-        /// List of threads to handle XML generation.
-        /// </summary>
-        private static IList<Thread> _Threads = new List<Thread>();
-
-        /// <summary>
-        /// Set the number of threads.
-        /// </summary>
-        private static int _NumberOfThreads = 10;
+        private static ManualResetEvent mre = new ManualResetEvent(false);
 
         public static void Main()
         {
-            Logger.SetVerbosity(VerbosityEnum.LEVEL.DEBUG);
-            for (int i = 0; i < _NumberOfThreads; i = i + 1)
-            {
-                Thread GeneratorThread = new Thread(ConsumeQueue);
-                GeneratorThread.Start();
-                _Threads.Add(GeneratorThread);
-            }
+
+            Thread.Sleep(1000);
+
             Run();
         }
 
@@ -61,32 +44,33 @@ namespace OTTProject
         /// <param name="file"></param>
         private static void HandleCreated(string file)
         {
+            ThreadPool.QueueUserWorkItem(new WaitCallback(
+                ConsumeQueue));
             XTVDGenerator generator = new XTVDGenerator(file);
             var item = new KeyValuePair<int, IGenerator>(_Rnd.Next(1, 20), generator);
             _queue.Enqueue(item);
+
         }
 
         /// <summary>
         /// Used by static thread to consume the concurrent queue.
         /// </summary>
-        public static void ConsumeQueue()
+        public static void ConsumeQueue(object stateInfo)
         {
-            while(true)
+            Thread.Sleep(1000);
+            
+            KeyValuePair<int, IGenerator> result = new KeyValuePair<int, IGenerator>();
+            bool success = _queue.TryDequeue(out result);
+            lock (_lock)
             {
-                Thread.Sleep(1000);
-                KeyValuePair<int, IGenerator> result = new KeyValuePair<int, IGenerator>();
-                bool success = _queue.TryDequeue(out result);
-                lock (_lock)
+                if (!success)
                 {
-                    if (!success)
-                    {
-                        _Idle = true;
-                        continue;
-                    }
-                    _Idle = false;
-                    result.Value.Generate();
+                    mre.WaitOne();
+                    return;
                 }
+                result.Value.Generate();
             }
+            
         }
 
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
@@ -133,24 +117,18 @@ namespace OTTProject
             );
             // Begin watching.
             watcher.EnableRaisingEvents = true;
-            Logger.Log("starting to watch folder: {0}", args[1]);
+            Logger.Debug("starting to watch folder: {0}", args[1]);
             // Wait for the user to quit the program.
             Console.WriteLine("Press any key to stop watching folder: {0}", args[1]);
             while (true)
             {
                 Console.ReadKey();
-                if (_Idle)
-                {
-                    foreach (var thread in _Threads)
-                    {
-                        thread.Abort();
-                    }
-                    return;
-                }
                 Logger.Info("a thread was busy, keep going");
             }
         }
 
 
     }
+
+
 }

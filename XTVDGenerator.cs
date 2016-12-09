@@ -82,6 +82,8 @@ namespace OTTProject
             _RootElement = Load(_InputFilePath);
             IEnumerable<XElement> programmes = GetProgrammes();
             XDocument generated = Generate(programmes, _OutputFilePath);
+            Logger.Info("done generating {0}, saved new file: {1}", _InputFilePath, _OutputFilePath);
+
         }
 
         /// <summary>

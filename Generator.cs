@@ -49,7 +49,7 @@ namespace OTTProject
                 
                 xelement = XElement.Load(file);
                 NameSpace = xelement.Name.Namespace;
-                Logger.Log("loaded file succesfully - {0}", Path.GetFileName(file));
+                Logger.Info("loaded file succesfully - {0}", Path.GetFileName(file));
             }
             catch (Exception e)
             {

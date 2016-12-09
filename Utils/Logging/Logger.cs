@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace OTTProject.Utils.Logging
 {
@@ -36,10 +36,14 @@ namespace OTTProject.Utils.Logging
         /// Public API to save the trouble of passing a textwriter instance.
         /// </summary>
         /// <param name="message"></param>
-        public static void Log(params string[] messages)
+        public static void Log(VerbosityEnum.LEVEL level, params string[] messages)
         {
-            messages[0] = "[log]: " + messages[0];
-            Log(_w, VerbosityEnum.LEVEL.DEBUG, messages);
+            Log(_w, level, messages);
+        }
+
+        public static void Debug(params string[] messages)
+        {
+            Log(VerbosityEnum.LEVEL.DEBUG ,messages);
         }
 
         /// <summary>
@@ -48,8 +52,7 @@ namespace OTTProject.Utils.Logging
         /// <param name="messages"></param>
         public static void Info(params string[] messages)
         {
-            messages[0] = "[info]: " + messages[0];
-            Log(_w, VerbosityEnum.LEVEL.INFO, messages);
+            Log(VerbosityEnum.LEVEL.INFO, messages);
         }
 
         /// <summary>
@@ -58,8 +61,7 @@ namespace OTTProject.Utils.Logging
         /// <param name="messages"></param>
         public static void Error(params string[] messages)
         {
-            messages[0] = "[error]: " + messages[0];
-            Log(_w, VerbosityEnum.LEVEL.ERROR, messages);
+            Log(VerbosityEnum.LEVEL.ERROR, messages);
         }
         /// <summary>
         /// Error to console and file
@@ -67,10 +69,9 @@ namespace OTTProject.Utils.Logging
         /// <param name="messages"></param>
         public static void Warning(params string[] messages)
         {
-            messages[0] = "[warning]: " + messages[0];
-            Log(_w, VerbosityEnum.LEVEL.WARNING, messages);
+            Log(VerbosityEnum.LEVEL.WARNING, messages);
         }
-
+       
         /// <summary>
         /// Set the verbosity level.
         /// </summary>
@@ -85,19 +86,12 @@ namespace OTTProject.Utils.Logging
         /// </summary>
         /// <param name="message"></param>
         /// <param name="w"></param>
-        private static void Log(TextWriter w,VerbosityEnum.LEVEL level, params string[] messages)
+        private static void Log(TextWriter w, VerbosityEnum.LEVEL level, params string[] messages)
         {
             lock (_lock)
             {
-                if (level < _VerbosityLevel) return;
-                IList<string> tmp = new List<string>(messages);
-                tmp.RemoveAt(0);
-                string message = String.Format(messages[0], tmp.ToArray());
-                string output = DateTime.Now.ToLongTimeString()
-                     + " "  
-                     + DateTime.Now.ToLongDateString()
-                     + " "
-                     + message;
+                if (_VerbosityLevel > level) return;
+                string output = ParseMessage(level, messages);
                 w.WriteLine(output);
                 if (ConsoleOutput)
                 {
@@ -105,6 +99,25 @@ namespace OTTProject.Utils.Logging
                 }
                 w.Flush();
             }
+        }
+
+
+        private static string ParseMessage(VerbosityEnum.LEVEL level, params string[] messages)
+        {
+            string levelName = Enum.GetName(typeof(VerbosityEnum.LEVEL), level).ToLower();
+            messages[0] = "[" + levelName + "]: " + messages[0];
+            IList<string> tmp = new List<string>(messages);
+            
+            tmp.RemoveAt(0);
+            string message = string.Format(messages[0], tmp.ToArray());
+            // string concatenation happens at compile time so it's fine.
+            return DateTime.Now.ToLongTimeString()
+                 + " "
+                 + DateTime.Now.ToLongDateString()
+                 + " thread id: "
+                 + Thread.CurrentThread.ManagedThreadId
+                 + " "
+                 + message;
         }
     }
 }

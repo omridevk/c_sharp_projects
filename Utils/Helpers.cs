@@ -100,7 +100,7 @@ namespace OTTProject.Utils
             {
                 return result;
             }
-            Logger.Log("element: " + name + " not found, creating new");
+            Logger.Info("element: " + name + " not found, creating new");
             root.Add(new XElement(name));
             return root.Element(name);
 
