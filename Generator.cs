@@ -86,7 +86,9 @@ namespace OTTProject
                 Logger.Error(e.Message);
                 return root;
             }
-            var generatorsList = GetGenerators();
+            // maybe use var?
+            IList<Tuple<string, Func<XElement, XElement>>> generatorsList = GetGenerators();
+
             foreach (var program in programs)
             {
                 // need to check if generators returns an empty list
@@ -97,7 +99,7 @@ namespace OTTProject
                     {
                         Helpers.FirstOrCreate(tuple.Item1, root.Root)
                             .Add(tuple.Item2(program));
-                        Logger.Log("generated children elements for: " + tuple.Item1);
+                        Logger.Log("generated children elements for" + tuple.Item1);
                     } catch (Exception e)
                     {
                         string message = "error invoking child generator: " + program.ToString() + " error:" + e.Message;

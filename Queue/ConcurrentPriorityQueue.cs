@@ -11,7 +11,6 @@ namespace OTTProject
         /// the current priority queue is using Minimum Binary Heap.
         /// </summary>
         private readonly MinBinaryHeap<TKey, TValue> _minHeap = new MinBinaryHeap<TKey, TValue>();
-
         /// <summary>
         /// lock to support threading, only one thread can access the lock.
         /// </summary>
@@ -34,7 +33,7 @@ namespace OTTProject
         /// <param name="item"></param>
         public void Enqueue(KeyValuePair<TKey, TValue> item)
         {
-            Logger.Log("added item to queue:" + item.Value.ToString() + "with priority: " + item.Key);
+            Logger.Log("added item to queue: " + item.Value.ToString() + " with priority: " + item.Key);
             lock (_lock) _minHeap.Insert(item);
         }
 
@@ -76,7 +75,7 @@ namespace OTTProject
                     return false;
                 }
                 result = _minHeap.Remove();
-                Logger.Log("removed item from the queue" + result.Value);
+                Logger.Log("removed item from the queue " + result.Value);
                 return true;
             }
         }

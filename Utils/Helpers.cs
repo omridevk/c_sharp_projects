@@ -56,7 +56,6 @@ namespace OTTProject
         public static string FormatTime(string time, string inputPattern, string outputPattern)
         {
             DateTime dt;
-
             if (DateTime.TryParseExact(time, inputPattern, CultureInfo.InvariantCulture,
                            DateTimeStyles.None,
                            out dt))
@@ -78,7 +77,6 @@ namespace OTTProject
                            out endDt) && DateTime.TryParseExact(start, timePattern, CultureInfo.InvariantCulture,
                            DateTimeStyles.None,
                            out startDt));
-
 
             if (result)
             {
