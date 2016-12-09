@@ -19,20 +19,22 @@ namespace OTTProject
 
 
         /// <summary>
-        /// hold the input XML file name
+        /// hold the output XML file name
         /// </summary>
         private string _file;
+
+        private string _OriginalFilePath;
 
         /// <summary>
         /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
         /// </summary>
-        private XNamespace _ns { get; }
+        private XNamespace _ns { get; set;}
 
 
         /// <summary>
         /// Generated root element name
         /// </summary>
-        protected override string RootName
+        public override string RootName
         {
             get
             {
@@ -43,7 +45,7 @@ namespace OTTProject
         /// <summary>
         /// Reference to the rootElement.
         /// </summary>
-        protected override XElement RootElement
+        public override XElement RootElement
         {
             get
             {
@@ -57,17 +59,17 @@ namespace OTTProject
         /// <param name="file"></param>
         public XTVDGenerator(string file)
         {
-            _RootElement = Load(file);
+            _OriginalFilePath = file;
             // could make ns and file static.
-            _ns = (string) _RootElement.Attribute("xmlns");
-            _file = Helpers.GetPath(file, "_XTVD");
+
+            _file = Helpers.GeneratePath(file, "_XTVD");
         }
 
         /// <summary>
         /// Get a list that contains a tuple of string and lamdas/delegates that generates 
         /// </summary>
         /// <returns></returns>
-        protected override IList<Tuple<string, Func<XElement, XElement>>> GetGenerators()
+        public override IList<Tuple<string, Func<XElement, XElement>>> GetGenerators()
         {
             return new List<Tuple<string, Func<XElement, XElement>>>
             {
@@ -81,8 +83,10 @@ namespace OTTProject
         /// Start the generate process, call parent generate
         /// can do more stuff if needed.
         /// </summary>
-        public void Generate()
+        public override void Generate()
         {
+            _RootElement = Load(_OriginalFilePath);
+            _ns = (string)_RootElement.Attribute("xmlns");
             IEnumerable<XElement> programmes = GetProgrammes();
             XDocument generated = Generate(programmes);
             Logger.Log("saving new(or updating existing one) file: " + _file);

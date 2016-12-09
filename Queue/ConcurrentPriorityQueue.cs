@@ -71,7 +71,7 @@ namespace OTTProject
             {
                 if (_minHeap.Count == 0)
                 {
-                    Logger.Error("can't remove from heap, it is empty!");
+                    Logger.Warning("can't remove from heap, it is empty!");
                     return false;
                 }
                 result = _minHeap.Remove();

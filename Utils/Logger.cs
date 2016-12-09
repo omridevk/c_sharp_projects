@@ -29,13 +29,18 @@ namespace OTTProject
         /// <param name="message"></param>
         public static void Log(string message)
         {
-            Logger.Log(message, Logger._w);
+            Log(message, _w);
         }
 
         public static void Error(string message)
         {
             message = "[error]:" + message;
-            Logger.Log(message);
+            Log(message);
+        }
+        public static void Warning(string message)
+        {
+            message = "[warning]:" + message;
+            Log(message);
         }
 
         /// <summary>

@@ -8,20 +8,13 @@ namespace OTTProject
     /// <summary>
     /// Abstract base class for future generators. 
     /// </summary>
-    abstract public class Generator
+    abstract public class Generator : Interfaces.IGenerator
     {
-
-
-        /// <summary>
-        /// Get A list of generators functions, will be used on the root when generating.
-        /// </summary>
-        /// <returns></returns>
-        protected abstract IList<Tuple<string,Func<XElement, XElement>>> GetGenerators();
 
         /// <summary>
         /// Generated root element name
         /// </summary>
-        protected abstract string RootName
+        public abstract string RootName
         {
             get;
         }
@@ -29,7 +22,7 @@ namespace OTTProject
         /// <summary>
         /// Root element to loaded XML
         /// </summary>
-        protected abstract XElement RootElement
+        public abstract XElement RootElement
         {
             get;
         }
@@ -41,7 +34,7 @@ namespace OTTProject
         /// <returns></returns>
         protected XElement Load(string file)
         {
-            XElement xelement;
+            XElement xelement = default(XElement);
             try
             {
                 xelement = XElement.Load(file);
@@ -50,7 +43,6 @@ namespace OTTProject
             catch (Exception e)
             {
                 Logger.Error(e.Message);
-                throw new Exception(e.Message);
             }
             return xelement;
         }
@@ -69,6 +61,17 @@ namespace OTTProject
                new XElement(RootName)
            );
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        abstract public void Generate();
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public abstract IList<Tuple<string, Func<XElement, XElement>>> GetGenerators();
     
         /// <summary>
         /// Generate the XML content using generators functions provided by the children
@@ -94,15 +97,14 @@ namespace OTTProject
                 // need to check if generators returns an empty list
                 foreach (var tuple in generatorsList)
                 {
-                    // need to check if element is null
                     try
                     {
                         Helpers.FirstOrCreate(tuple.Item1, root.Root)
                             .Add(tuple.Item2(program));
-                        Logger.Log("generated children elements for" + tuple.Item1);
+                        Logger.Log("generated children elements for " + tuple.Item1);
                     } catch (Exception e)
                     {
-                        string message = "error invoking child generator: " + program.ToString() + " error:" + e.Message;
+                        string message = "error invoking child generator: " + program.ToString() + " error: " + e.Message;
                         Logger.Error(message);
                     }
                 }

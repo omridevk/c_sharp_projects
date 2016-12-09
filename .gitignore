@@ -1,5 +1,6 @@
 /xml
-
+/packages
+/.vs
 /obj
 /bin
 log.txt

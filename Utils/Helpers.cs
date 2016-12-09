@@ -46,12 +46,13 @@ namespace OTTProject
             return str.ToLower();
         }
 
-        public static string GetPath(string file, string postfix)
+        public static string GeneratePath(string file, string postfix)
         {
             string path = "xml\\..\\..\\" + Path.GetFileNameWithoutExtension(file);
             path += postfix + Path.GetExtension(file);
             return path;
         }
+
 
         public static string FormatTime(string time, string inputPattern, string outputPattern)
         {
