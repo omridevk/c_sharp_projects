@@ -2,7 +2,9 @@
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using System.Collections.Generic;   
+using System.Collections.Generic;
+using OTTProject.Utils.Logging;
+using OTTProject.Utils;
 
 namespace OTTProject
 {
@@ -79,16 +81,7 @@ namespace OTTProject
         {
             _RootElement = Load(_InputFilePath);
             IEnumerable<XElement> programmes = GetProgrammes();
-            XDocument generated = Generate(programmes);
-            Logger.Log("saving new(or updating existing one) file: " + _OutputFilePath);
-            try
-            {
-                generated.Save(_OutputFilePath);
-            }
-            catch (Exception e)
-            {
-                Logger.Error("error saving file: " + e.Message);
-            }
+            XDocument generated = Generate(programmes, _OutputFilePath);
         }
 
         /// <summary>
@@ -115,14 +108,17 @@ namespace OTTProject
         /// <returns></returns>
         private XElement GeneratePrograms(XElement program)
         {
-            Logger.Info("generating program XML for program: " + program.Attribute("external_id"));
+            string id = (string) program.Attribute("external_id");
+            string title = (string) program.Element(NameSpace + "title");
+            string desc = (string)program.Element(NameSpace + "desc");
+            Logger.Info("generating program XML for program: {0}", id);
             IEnumerable<XElement> metaTags = GenerateMeta(program);
             return new XElement("program",
-                new XAttribute("id", (string)program.Attribute("external_id")),
+                new XAttribute("id", id),
                 new XElement("series"),
-                new XElement("title", (string)program.Element(NameSpace + "title")),
+                new XElement("title", title),
                 new XElement("subtitle"),
-                new XElement("description", (string)program.Element(NameSpace + "desc")),
+                new XElement("description", desc),
                 new XElement("showType"),
                 new XElement("year"),
                 new XElement("mpaaRating"),
@@ -138,7 +134,7 @@ namespace OTTProject
         /// <returns></returns>
         private IEnumerable<XElement> GenerateMeta(XElement program)
         {
-            Logger.Info("generating tags from MetaTags for program: " + program.Attribute("external_id"));
+            Logger.Info("generating tags from MetaTags for program: {0}", (string) program.Attribute("external_id"));
             IEnumerable<XElement> metas = program.Elements(NameSpace + "metas");
             IList<XElement> transformed = new List<XElement>();
             foreach (var meta in metas)
@@ -160,7 +156,7 @@ namespace OTTProject
 
         private XElement GenerateteSchedules(XElement program)
         {
-            Logger.Info("generating schedules for program: " + program.Attribute("external_id"));
+            Logger.Info("generating schedules for program: {0}", (string) program.Attribute("external_id"));
             string start = Helpers.FormatTime(
                 (string)program.Attribute("start"),
                 XTVDTimeFormatEnum.XTVD_INPUT_TIME_FORMAT,

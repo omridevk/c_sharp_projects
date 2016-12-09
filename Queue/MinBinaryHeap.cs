@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace OTTProject
+namespace OTTProject.Queue
 {
     public sealed class MinBinaryHeap<TKey, TValue> where TKey : IComparable
     {

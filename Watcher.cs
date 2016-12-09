@@ -1,12 +1,14 @@
-﻿using OTTProject.Interfaces;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Reactive;
-using System.Reactive.Linq;
-using System.Security.Permissions;
+using OTTProject.Queue;
 using System.Threading;
+using System.Reactive.Linq;
+using OTTProject.Interfaces;
+using System.Collections.Generic;
+using System.Security.Permissions;
+using OTTProject.Utils.Logging;
 
 namespace OTTProject
 {
@@ -14,18 +16,36 @@ namespace OTTProject
     public class Watcher
     {
 
+        /// <summary>
+        /// Instance of a concurrent priority queue to play with.
+        /// </summary>
         private static ConcurrentPriorityQueue<int, IGenerator> _queue = new ConcurrentPriorityQueue<int, IGenerator>();
 
+        /// <summary>
+        /// Simple flag if user want to quit we want to make sure no thread is running.
+        /// </summary>
         private static bool _Idle = true;
+
+        /// <summary>
+        /// Instance of random to be used when setting item's priority before inserting to queue.
+        /// </summary>
+        private static Random _Rnd = new Random();
 
         private static readonly object _lock = new object();
 
+        /// <summary>
+        /// List of threads to handle XML generation.
+        /// </summary>
         private static IList<Thread> _Threads = new List<Thread>();
 
+        /// <summary>
+        /// Set the number of threads.
+        /// </summary>
         private static int _NumberOfThreads = 10;
 
         public static void Main()
         {
+            Logger.SetVerbosity(VerbosityEnum.LEVEL.DEBUG);
             for (int i = 0; i < _NumberOfThreads; i = i + 1)
             {
                 Thread GeneratorThread = new Thread(ConsumeQueue);
@@ -42,7 +62,7 @@ namespace OTTProject
         private static void HandleCreated(string file)
         {
             XTVDGenerator generator = new XTVDGenerator(file);
-            var item = new KeyValuePair<int, IGenerator>(2, generator);
+            var item = new KeyValuePair<int, IGenerator>(_Rnd.Next(1, 20), generator);
             _queue.Enqueue(item);
         }
 
@@ -75,7 +95,7 @@ namespace OTTProject
 
             string[] args = Environment.GetCommandLineArgs();
 
-            Logger.ConsoleOutput = false;
+            Logger.ConsoleOutput = true;
             // If a directory is not specified, exit program.
             if (args.Length != 2)
             {
@@ -113,9 +133,9 @@ namespace OTTProject
             );
             // Begin watching.
             watcher.EnableRaisingEvents = true;
-            Logger.Log("starting to watch folder: " + args[1]);
+            Logger.Log("starting to watch folder: {0}", args[1]);
             // Wait for the user to quit the program.
-            Console.WriteLine("Press any key to stop watching folder: " + args[1]);
+            Console.WriteLine("Press any key to stop watching folder: {0}", args[1]);
             while (true)
             {
                 Console.ReadKey();
@@ -127,7 +147,7 @@ namespace OTTProject
                     }
                     return;
                 }
-                Console.WriteLine("a thread was busy, keep going");
+                Logger.Info("a thread was busy, keep going");
             }
         }
 

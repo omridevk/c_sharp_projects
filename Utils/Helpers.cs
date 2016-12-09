@@ -2,8 +2,9 @@
 using System.IO;
 using System.Xml.Linq;
 using System.Globalization;
+using OTTProject.Utils.Logging;
 
-namespace OTTProject
+namespace OTTProject.Utils
 {
     public static class Helpers
     {
@@ -48,7 +49,10 @@ namespace OTTProject
 
         public static string GeneratePath(string file, string postfix)
         {
-            string path = "xml\\..\\..\\" + Path.GetFileNameWithoutExtension(file);
+            string fileName = Path.GetFileNameWithoutExtension(file) + postfix + Path.GetExtension(file);
+            string path = Directory.GetCurrentDirectory();
+            Directory.CreateDirectory(Path.Combine(path, "output"));
+            path = Path.Combine(path,"output", fileName);
             path += postfix + Path.GetExtension(file);
             return path;
         }

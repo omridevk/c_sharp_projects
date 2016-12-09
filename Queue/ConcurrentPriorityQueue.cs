@@ -1,11 +1,11 @@
-﻿using System;
+﻿using OTTProject.Utils.Logging;
+using System;
 using System.Collections.Generic;
 
-namespace OTTProject
+namespace OTTProject.Queue
 {
     public class ConcurrentPriorityQueue<TKey, TValue>
        where TKey : IComparable
-
     {
         /// <summary>
         /// the current priority queue is using Minimum Binary Heap.
@@ -75,7 +75,7 @@ namespace OTTProject
                     return false;
                 }
                 result = _minHeap.Remove();
-                Logger.Log("removed item from the queue " + result.Value);
+                Logger.Log("removed item from the queue " + result.Value + " with priority: " + result.Key);
                 return true;
             }
         }

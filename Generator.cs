@@ -2,6 +2,8 @@
 using System.IO;
 using System.Xml.Linq;
 using System.Collections.Generic;
+using OTTProject.Utils.Logging;
+using OTTProject.Utils;
 
 namespace OTTProject
 {
@@ -47,7 +49,7 @@ namespace OTTProject
                 
                 xelement = XElement.Load(file);
                 NameSpace = xelement.Name.Namespace;
-                Logger.Log("loaded file succesfully - " + Path.GetFileName(file));
+                Logger.Log("loaded file succesfully - {0}", Path.GetFileName(file));
             }
             catch (Exception e)
             {
@@ -87,7 +89,7 @@ namespace OTTProject
         /// </summary>
         /// <param name="programs"></param>
         /// <returns></returns>
-        protected XDocument Generate(IEnumerable<XElement> programs)
+        protected XDocument Generate(IEnumerable<XElement> programs, string outputPath)
         {
             XDocument root = default(XDocument);
             try
@@ -112,10 +114,17 @@ namespace OTTProject
                             .Add(tuple.Item2(program));
                     } catch (Exception e)
                     {
-                        string message = "error invoking child generator: " + program.ToString() + " error: " + e.Message;
-                        Logger.Error(message);
+                        string message = "error invoking child generator: {0} error: {1}";
+                        Logger.Error(message, program.ToString(), e.Message);
                     }
                 }
+            }
+            try
+            {
+                root.Save(outputPath);
+            } catch (Exception e)
+            {
+                Logger.Error("error saving file: {0}", e.Message);
             }
             return root;
         }
