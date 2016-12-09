@@ -107,7 +107,6 @@ namespace OTTProject.Utils.Logging
             string levelName = Enum.GetName(typeof(VerbosityEnum.LEVEL), level).ToLower();
             messages[0] = "[" + levelName + "]: " + messages[0];
             IList<string> tmp = new List<string>(messages);
-            
             tmp.RemoveAt(0);
             string message = string.Format(messages[0], tmp.ToArray());
             // string concatenation happens at compile time so it's fine.

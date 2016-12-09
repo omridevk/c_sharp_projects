@@ -32,9 +32,6 @@ namespace OTTProject
 
         public static void Main()
         {
-
-            Thread.Sleep(1000);
-
             Run();
         }
 
@@ -84,7 +81,7 @@ namespace OTTProject
             if (args.Length != 2)
             {
                 // Display the proper way to call the program.
-                Console.WriteLine("Usage: Watcher.exe (directory)");
+                Console.WriteLine("Usage: OTTProject.exe (directory)");
                 return;
             }
 
@@ -120,11 +117,7 @@ namespace OTTProject
             Logger.Debug("starting to watch folder: {0}", args[1]);
             // Wait for the user to quit the program.
             Console.WriteLine("Press any key to stop watching folder: {0}", args[1]);
-            while (true)
-            {
-                Console.ReadKey();
-                Logger.Info("a thread was busy, keep going");
-            }
+            Console.ReadKey();
         }
 
 
