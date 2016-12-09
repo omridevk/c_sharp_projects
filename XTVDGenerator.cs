@@ -21,15 +21,9 @@ namespace OTTProject
         /// <summary>
         /// hold the output XML file name
         /// </summary>
-        private string _file;
+        private string _OutputFilePath;
 
-        private string _OriginalFilePath;
-
-        /// <summary>
-        /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
-        /// </summary>
-        private XNamespace _ns { get; set;}
-
+        private string _InputFilePath;
 
         /// <summary>
         /// Generated root element name
@@ -59,10 +53,8 @@ namespace OTTProject
         /// <param name="file"></param>
         public XTVDGenerator(string file)
         {
-            _OriginalFilePath = file;
-            // could make ns and file static.
-
-            _file = Helpers.GeneratePath(file, "_XTVD");
+            _InputFilePath = file;
+            _OutputFilePath = Helpers.GeneratePath(file, "_XTVD");
         }
 
         /// <summary>
@@ -85,14 +77,13 @@ namespace OTTProject
         /// </summary>
         public override void Generate()
         {
-            _RootElement = Load(_OriginalFilePath);
-            _ns = (string)_RootElement.Attribute("xmlns");
+            _RootElement = Load(_InputFilePath);
             IEnumerable<XElement> programmes = GetProgrammes();
             XDocument generated = Generate(programmes);
-            Logger.Log("saving new(or updating existing one) file: " + _file);
+            Logger.Log("saving new(or updating existing one) file: " + _OutputFilePath);
             try
             {
-                generated.Save(_file);
+                generated.Save(_OutputFilePath);
             }
             catch (Exception e)
             {
@@ -106,14 +97,15 @@ namespace OTTProject
         /// <returns></returns>
         private IEnumerable<XElement> GetProgrammes()
         {
-            return from programme in _RootElement.Elements(_ns + "programme")
+            Logger.Info("fetching programmes from original XML");
+            return from programme in _RootElement.Elements(NameSpace + "programme")
                    orderby (string)programme.Attribute("start")
                    select programme;
         }
 
         public override string ToString()
         {
-            return Path.GetFileName(_file);
+            return Path.GetFileName(_OutputFilePath);
         }
        
         /// <summary>
@@ -123,13 +115,14 @@ namespace OTTProject
         /// <returns></returns>
         private XElement GeneratePrograms(XElement program)
         {
+            Logger.Info("generating program XML for program: " + program.Attribute("external_id"));
             IEnumerable<XElement> metaTags = GenerateMeta(program);
             return new XElement("program",
                 new XAttribute("id", (string)program.Attribute("external_id")),
                 new XElement("series"),
-                new XElement("title", (string)program.Element(_ns + "title")),
+                new XElement("title", (string)program.Element(NameSpace + "title")),
                 new XElement("subtitle"),
-                new XElement("description", (string)program.Element(_ns + "desc")),
+                new XElement("description", (string)program.Element(NameSpace + "desc")),
                 new XElement("showType"),
                 new XElement("year"),
                 new XElement("mpaaRating"),
@@ -145,11 +138,12 @@ namespace OTTProject
         /// <returns></returns>
         private IEnumerable<XElement> GenerateMeta(XElement program)
         {
-            IEnumerable<XElement> metas = program.Elements(_ns + "metas");
+            Logger.Info("generating tags from MetaTags for program: " + program.Attribute("external_id"));
+            IEnumerable<XElement> metas = program.Elements(NameSpace + "metas");
             IList<XElement> transformed = new List<XElement>();
             foreach (var meta in metas)
             {
-                string metaType = (string)meta.Element(_ns + "MetaType");
+                string metaType = (string)meta.Element(NameSpace + "MetaType");
                 string[] words = metaType.Split(' ');
                 words[0] = Helpers.FirstLetterToLower(words[0]);
                 for (int i = 1; i < words.Length; i++)
@@ -157,7 +151,7 @@ namespace OTTProject
                     words[i] = Helpers.FirstLetterToUpper(words[i]);
                 }
                 transformed.Add(
-                    new XElement(String.Join("", words), (string)meta.Element(_ns + "MetaValues"))
+                    new XElement(String.Join("", words), (string)meta.Element(NameSpace + "MetaValues"))
                 );
 
             }
@@ -166,6 +160,7 @@ namespace OTTProject
 
         private XElement GenerateteSchedules(XElement program)
         {
+            Logger.Info("generating schedules for program: " + program.Attribute("external_id"));
             string start = Helpers.FormatTime(
                 (string)program.Attribute("start"),
                 XTVDTimeFormatEnum.XTVD_INPUT_TIME_FORMAT,

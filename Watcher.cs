@@ -18,15 +18,17 @@ namespace OTTProject
 
         private static bool _Idle = true;
 
+        private static readonly object _lock = new object();
+
         private static IList<Thread> _Threads = new List<Thread>();
 
         private static int _NumberOfThreads = 10;
 
         public static void Main()
         {
-            for (int i = 0; i < _NumberOfThreads; i++)
+            for (int i = 0; i < _NumberOfThreads; i = i + 1)
             {
-                Thread GeneratorThread = new Thread(Watcher.ConsumeQueue);
+                Thread GeneratorThread = new Thread(ConsumeQueue);
                 GeneratorThread.Start();
                 _Threads.Add(GeneratorThread);
             }
@@ -34,10 +36,10 @@ namespace OTTProject
         }
 
         /// <summary>
-        /// 
+        /// Handle file created event 
         /// </summary>
         /// <param name="file"></param>
-        private static void HandleChanged(string file)
+        private static void HandleCreated(string file)
         {
             XTVDGenerator generator = new XTVDGenerator(file);
             var item = new KeyValuePair<int, IGenerator>(2, generator);
@@ -53,14 +55,17 @@ namespace OTTProject
             {
                 Thread.Sleep(1000);
                 KeyValuePair<int, IGenerator> result = new KeyValuePair<int, IGenerator>();
-                bool success = Watcher._queue.TryDequeue(out result);
-                if (!success)
+                bool success = _queue.TryDequeue(out result);
+                lock (_lock)
                 {
-                    _Idle = true;
-                    continue;
+                    if (!success)
+                    {
+                        _Idle = true;
+                        continue;
+                    }
+                    _Idle = false;
+                    result.Value.Generate();
                 }
-                _Idle = false;
-                result.Value.Generate();
             }
         }
 
@@ -70,7 +75,7 @@ namespace OTTProject
 
             string[] args = Environment.GetCommandLineArgs();
 
-
+            Logger.ConsoleOutput = false;
             // If a directory is not specified, exit program.
             if (args.Length != 2)
             {
@@ -81,6 +86,16 @@ namespace OTTProject
 
             // Create a new FileSystemWatcher and set its properties.
             FileSystemWatcher watcher = new FileSystemWatcher();
+            if (!Directory.Exists(args[1]))
+            {
+                Console.WriteLine("directory: " + args[1] + " doesn't exist, create it? (y/n)");
+                if (Console.ReadKey().Key != ConsoleKey.Y)
+                {
+                    Console.WriteLine("exiting.");
+                    return;
+                }
+                DirectoryInfo dir = Directory.CreateDirectory(args[1]);                
+            }
             watcher.Path = args[1];
             /* Watch for changes in LastAccess and LastWrite times, and
                the renaming of files or directories. */
@@ -90,11 +105,11 @@ namespace OTTProject
             watcher.Filter = "*.xml";
             
             IObservable<EventPattern<FileSystemEventArgs>> created = Observable.FromEventPattern<FileSystemEventArgs>(watcher, "Created");
-            var filePath = from change in created
+            IObservable<string> filePath = from change in created
                            select change.EventArgs.FullPath;
 
             filePath.Subscribe(
-                file => HandleChanged(file)
+                file => HandleCreated(file)
             );
             // Begin watching.
             watcher.EnableRaisingEvents = true;
@@ -103,7 +118,8 @@ namespace OTTProject
             Console.WriteLine("Press any key to stop watching folder: " + args[1]);
             while (true)
             {
-                if (Console.ReadKey().Key == ConsoleKey.Q && _Idle)
+                Console.ReadKey();
+                if (_Idle)
                 {
                     foreach (var thread in _Threads)
                     {
@@ -111,6 +127,7 @@ namespace OTTProject
                     }
                     return;
                 }
+                Console.WriteLine("a thread was busy, keep going");
             }
         }
 

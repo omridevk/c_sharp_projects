@@ -11,7 +11,9 @@ namespace OTTProject
         /// </summary>
         private static readonly object _lock = new object();
 
-        private static readonly StreamWriter _w; 
+        private static readonly StreamWriter _w;
+
+        public static bool ConsoleOutput = false;
  
 
         /// <summary>
@@ -29,18 +31,25 @@ namespace OTTProject
         /// <param name="message"></param>
         public static void Log(string message)
         {
+            message = "[log]: " + message;
+            Log(message, _w);
+        }
+
+        public static void Info(string message)
+        {
+            message = "[info]: " + message;
             Log(message, _w);
         }
 
         public static void Error(string message)
         {
-            message = "[error]:" + message;
-            Log(message);
+            message = "[error]: " + message;
+            Log(message, _w);
         }
         public static void Warning(string message)
         {
             message = "[warning]:" + message;
-            Log(message);
+            Log(message, _w);
         }
 
         /// <summary>
@@ -52,12 +61,16 @@ namespace OTTProject
         {
             lock (_lock)
             {
-                w.WriteLine(
-                    "{0} {1}: {2}", 
-                    DateTime.Now.ToLongTimeString(),
-                    DateTime.Now.ToLongDateString(),
-                    message
-                );
+                string output = DateTime.Now.ToLongTimeString()
+                     + " "  
+                     + DateTime.Now.ToLongDateString()
+                     + " "
+                     + message;
+                w.WriteLine(output);
+                if (ConsoleOutput)
+                {
+                    Console.WriteLine(output);
+                }
                 w.Flush();
             }
         }

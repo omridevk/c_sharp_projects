@@ -11,6 +11,13 @@ namespace OTTProject
     abstract public class Generator : Interfaces.IGenerator
     {
 
+
+        /// <summary>
+        /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
+        /// </summary>
+        protected XNamespace NameSpace { get; set; }
+
+
         /// <summary>
         /// Generated root element name
         /// </summary>
@@ -37,7 +44,9 @@ namespace OTTProject
             XElement xelement = default(XElement);
             try
             {
+                
                 xelement = XElement.Load(file);
+                NameSpace = xelement.Name.Namespace;
                 Logger.Log("loaded file succesfully - " + Path.GetFileName(file));
             }
             catch (Exception e)
@@ -101,7 +110,6 @@ namespace OTTProject
                     {
                         Helpers.FirstOrCreate(tuple.Item1, root.Root)
                             .Add(tuple.Item2(program));
-                        Logger.Log("generated children elements for " + tuple.Item1);
                     } catch (Exception e)
                     {
                         string message = "error invoking child generator: " + program.ToString() + " error: " + e.Message;
