@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using System.Threading;
+using System.Collections.Generic;
 
 namespace OTTProject.Utils.Logging
 {
@@ -36,12 +36,12 @@ namespace OTTProject.Utils.Logging
         /// Public API to save the trouble of passing a textwriter instance.
         /// </summary>
         /// <param name="message"></param>
-        public static void Log(VerbosityEnum.LEVEL level, params string[] messages)
+        public static void Log(VerbosityEnum.LEVEL level, params object[] messages)
         {
             Log(_w, level, messages);
         }
 
-        public static void Debug(params string[] messages)
+        public static void Debug(params object[] messages)
         {
             Log(VerbosityEnum.LEVEL.DEBUG ,messages);
         }
@@ -50,7 +50,7 @@ namespace OTTProject.Utils.Logging
         /// Info to console and file
         /// </summary>
         /// <param name="messages"></param>
-        public static void Info(params string[] messages)
+        public static void Info(params object[] messages)
         {
             Log(VerbosityEnum.LEVEL.INFO, messages);
         }
@@ -59,7 +59,7 @@ namespace OTTProject.Utils.Logging
         /// Error to console and file
         /// </summary>
         /// <param name="messages"></param>
-        public static void Error(params string[] messages)
+        public static void Error(params object[] messages)
         {
             Log(VerbosityEnum.LEVEL.ERROR, messages);
         }
@@ -67,7 +67,7 @@ namespace OTTProject.Utils.Logging
         /// Error to console and file
         /// </summary>
         /// <param name="messages"></param>
-        public static void Warning(params string[] messages)
+        public static void Warning(params object[] messages)
         {
             Log(VerbosityEnum.LEVEL.WARNING, messages);
         }
@@ -86,7 +86,7 @@ namespace OTTProject.Utils.Logging
         /// </summary>
         /// <param name="message"></param>
         /// <param name="w"></param>
-        private static void Log(TextWriter w, VerbosityEnum.LEVEL level, params string[] messages)
+        private static void Log(TextWriter w, VerbosityEnum.LEVEL level, params object[] messages)
         {
             lock (_lock)
             {
@@ -102,13 +102,13 @@ namespace OTTProject.Utils.Logging
         }
 
 
-        private static string ParseMessage(VerbosityEnum.LEVEL level, params string[] messages)
+        private static string ParseMessage(VerbosityEnum.LEVEL level, params object[] messages)
         {
             string levelName = Enum.GetName(typeof(VerbosityEnum.LEVEL), level).ToLower();
             messages[0] = "[" + levelName + "]: " + messages[0];
-            IList<string> tmp = new List<string>(messages);
+            IList<object> tmp = new List<object>(messages);
             tmp.RemoveAt(0);
-            string message = string.Format(messages[0], tmp.ToArray());
+            string message = string.Format(messages[0].ToString(), tmp.ToArray());
             // string concatenation happens at compile time so it's fine.
             return DateTime.Now.ToLongTimeString()
                  + " "

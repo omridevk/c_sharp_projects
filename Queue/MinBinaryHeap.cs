@@ -72,7 +72,7 @@ namespace OTTProject.Queue
                 {
                     // swap with left, why not, it might change later.
                     KeyValuePair<TKey, TValue> leftChild = _items[leftChildPosition];
-                    if (leftChild.Key.CompareTo(parent.Key) > 0)
+                    if (leftChild.Key.CompareTo(parent.Key) < 0)
                     {
                         swapPosition = leftChildPosition;
                     }

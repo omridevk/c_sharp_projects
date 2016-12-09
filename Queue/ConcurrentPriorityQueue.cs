@@ -1,5 +1,5 @@
-﻿using OTTProject.Utils.Logging;
-using System;
+﻿using System;
+using OTTProject.Utils.Logging;
 using System.Collections.Generic;
 
 namespace OTTProject.Queue
@@ -15,8 +15,6 @@ namespace OTTProject.Queue
         /// lock to support threading, only one thread can access the lock.
         /// </summary>
         private readonly object _lock = new object();
-
-
         /// <summary>
         /// Add the queue wrapper.
         /// </summary>
@@ -26,17 +24,15 @@ namespace OTTProject.Queue
         {
             Enqueue(new KeyValuePair<TKey, TValue>(priority, tvalue));
         }
-
         /// <summary>
         /// support passing KeyValuePair construct.
         /// </summary>
         /// <param name="item"></param>
         public void Enqueue(KeyValuePair<TKey, TValue> item)
         {
-            Logger.Info("added item to queue: " + item.Value.ToString() + " with priority: " + item.Key);
+            Logger.Info("added item to queue: {0} with priority: {1}", item.Value, item.Key);
             lock (_lock) _minHeap.Insert(item);
         }
-
         /// <summary>
         /// Try to get the first item in queue with removing it.
         /// 
@@ -52,12 +48,11 @@ namespace OTTProject.Queue
             }
             catch (Exception e)
             {
-                Logger.Error("error peeking the queue: " + e.Message);
+                Logger.Error("error peeking the queue: {0}", e.Message);
                 return false;
             }
             return true;
         }
-
         /// <summary>
         /// Try to Dequeue, false if queue(heap) is empty.
         /// Since there's a lock we can be sure the heap will not be touched by other threads.
@@ -75,7 +70,7 @@ namespace OTTProject.Queue
                     return false;
                 }
                 result = _minHeap.Remove();
-                Logger.Info("removed item from the queue " + result.Value + " with priority: " + result.Key);
+                Logger.Info("removed item from the queue {0} with priority: {1}", result.Value, result.Key);
                 return true;
             }
         }

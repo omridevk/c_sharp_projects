@@ -6,9 +6,10 @@ using OTTProject.Queue;
 using System.Threading;
 using System.Reactive.Linq;
 using OTTProject.Interfaces;
+using OTTProject.Utils.Logging;
 using System.Collections.Generic;
 using System.Security.Permissions;
-using OTTProject.Utils.Logging;
+
 
 namespace OTTProject
 {
@@ -24,7 +25,7 @@ namespace OTTProject
         /// <summary>
         /// Instance of random to be used when setting item's priority before inserting to queue.
         /// </summary>
-        private static Random _Rnd = new Random();
+        private static Random _Rnd = new Random(5);
 
         private static readonly object _lock = new object();
 
@@ -32,6 +33,9 @@ namespace OTTProject
 
         public static void Main()
         {
+            // set logger level and set console output settings
+            Logger.ConsoleOutput = false;
+            Logger.SetVerbosity(VerbosityEnum.LEVEL.DEBUG);
             Run();
         }
 
@@ -54,7 +58,8 @@ namespace OTTProject
         /// </summary>
         public static void ConsumeQueue(object stateInfo)
         {
-            Thread.Sleep(1000);
+            // too fast so put some sleep into it.
+            Thread.Sleep(500);
             
             KeyValuePair<int, IGenerator> result = new KeyValuePair<int, IGenerator>();
             bool success = _queue.TryDequeue(out result);
@@ -75,8 +80,6 @@ namespace OTTProject
         {
 
             string[] args = Environment.GetCommandLineArgs();
-
-            Logger.ConsoleOutput = true;
             // If a directory is not specified, exit program.
             if (args.Length != 2)
             {

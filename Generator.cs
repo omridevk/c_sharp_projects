@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Linq;
-using System.Collections.Generic;
-using OTTProject.Utils.Logging;
 using OTTProject.Utils;
+using OTTProject.Utils.Logging;
+using System.Collections.Generic;
 
 namespace OTTProject
 {
@@ -12,7 +12,6 @@ namespace OTTProject
     /// </summary>
     abstract public class Generator : Interfaces.IGenerator
     {
-
 
         /// <summary>
         /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
@@ -102,7 +101,11 @@ namespace OTTProject
             }
             // maybe use var?
             IList<Tuple<string, Func<XElement, XElement>>> generatorsList = GetGenerators();
-
+            if (generatorsList.Count == 0)
+            {
+                Logger.Error("no generators found for {0}", this.GetType().Name);
+                return root;
+            }
             foreach (var program in programs)
             {
                 // need to check if generators returns an empty list
