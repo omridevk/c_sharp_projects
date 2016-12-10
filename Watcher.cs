@@ -29,8 +29,6 @@ namespace OTTProject
 
         private static readonly object _lock = new object();
 
-        private static ManualResetEvent mre = new ManualResetEvent(false);
-
         public static void Main()
         {
             // set logger level and set console output settings
@@ -59,14 +57,12 @@ namespace OTTProject
         public static void ConsumeQueue(object stateInfo)
         {
             // too fast so put some sleep into it.
-            Thread.Sleep(50);
             KeyValuePair<int, IGenerator> result = new KeyValuePair<int, IGenerator>();
             bool success = _queue.TryDequeue(out result);
             lock (_lock)
             {
                 if (!success)
                 {
-                    mre.WaitOne();
                     return;
                 }
                 result.Value.Generate();
@@ -77,7 +73,6 @@ namespace OTTProject
         [PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
         public static void Run()
         {
-
             string[] args = Environment.GetCommandLineArgs();
             // If a directory is not specified, exit program.
             if (args.Length != 2)

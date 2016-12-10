@@ -19,7 +19,7 @@ namespace OTTProject.Utils.Logging
         /// <summary>
         /// Output to console or not.
         /// </summary>
-        public static bool ConsoleOutput = false;
+        public static bool ConsoleOutput = true;
 
         private static VerbosityEnum.LEVEL _VerbosityLevel = VerbosityEnum.LEVEL.DEBUG;
         /// <summary>
@@ -91,9 +91,9 @@ namespace OTTProject.Utils.Logging
         /// <param name="w"></param>
         private static void Log(TextWriter w, VerbosityEnum.LEVEL level, params object[] messages)
         {
+            if (_VerbosityLevel > level) return;
             lock (_lock)
-            {
-                if (_VerbosityLevel > level) return;
+            {    
                 string output = ParseMessage(level, messages);
                 w.WriteLine(output);
                 if (ConsoleOutput)
