@@ -71,7 +71,6 @@ namespace OTTProject.Queue
                 }
                 result = _minHeap.Remove();
                 Logger.Info("removed item from the queue {0} with priority: {1}", result.Value, result.Key);
-                Logger.Dump(_minHeap.Count);
                 return true;
             }
         }

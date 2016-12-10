@@ -33,7 +33,7 @@ namespace OTTProject
         {
             // set logger level and set console output settings
             Logger.ConsoleOutput = true;
-            Logger.SetVerbosity(VerbosityEnum.LEVEL.NOTSET);
+            Logger.SetVerbosity(VerbosityEnum.LEVEL.DEBUG);
             Run();
 
         }
@@ -78,7 +78,7 @@ namespace OTTProject
             if (args.Length != 2)
             {
                 // Display the proper way to call the program.
-                Logger.Dump("Usage: OTTProject.exe (directory)");
+                Logger.Critical("Usage: OTTProject.exe (directory)");
                 return;
             }
 
@@ -89,7 +89,7 @@ namespace OTTProject
                 Console.WriteLine("directory: " + args[1] + " doesn't exist, create it? (y/n)");
                 if (Console.ReadKey().Key != ConsoleKey.Y)
                 {
-                    Logger.Dump("exiting.");
+                    Logger.Critical("exiting.");
                     return;
                 }
                 DirectoryInfo dir = Directory.CreateDirectory(args[1]);                
@@ -97,27 +97,22 @@ namespace OTTProject
             watcher.Path = args[1];
             /* Watch for changes in LastAccess and LastWrite times, and
                the renaming of files or directories. */
-            watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite
-               | NotifyFilters.FileName | NotifyFilters.DirectoryName;
+            watcher.NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName;
             // Only XML files at the moment.
             watcher.Filter = "*.xml";
             
             IObservable<EventPattern<FileSystemEventArgs>> created = Observable.FromEventPattern<FileSystemEventArgs>(watcher, "Created");
-            IObservable<string> filePath = from change in created
-                           select change.EventArgs.FullPath;
+            IObservable<string> filePath = created
+                .Select(change => change.EventArgs.FullPath)
+                .Delay(TimeSpan.FromMilliseconds(500));
 
-            filePath.Delay(TimeSpan.FromMilliseconds(500))
-                .Subscribe(
-                    file => HandleCreated(file)
-                );
+            filePath
+                .Subscribe(file => HandleCreated(file));
             watcher.EnableRaisingEvents = true;
-            Logger.Debug("starting to watch folder: {0}", args[1]);
             // Wait for the user to quit the program.
-            Logger.Dump("Press any key to stop watching folder: {0}", args[1]);
+            Logger.Info("Press any key to stop watching folder: {0}", args[1]);
             Console.ReadKey();
         }
-
-
     }
 
 
