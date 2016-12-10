@@ -2,6 +2,7 @@
 using System.IO;
 using System.Xml.Linq;
 using OTTProject.Utils;
+using OTTProject.Interfaces;
 using OTTProject.Utils.Logging;
 using System.Collections.Generic;
 
@@ -10,7 +11,7 @@ namespace OTTProject
     /// <summary>
     /// Abstract base class for future generators. 
     /// </summary>
-    abstract public class Generator : Interfaces.IGenerator
+    abstract public class Generator : IGenerator
     {
 
         /// <summary>
@@ -117,8 +118,7 @@ namespace OTTProject
                             .Add(tuple.Item2(program));
                     } catch (Exception e)
                     {
-                        string message = "error invoking child generator: {0} error: {1}";
-                        Logger.Error(message, program.ToString(), e.Message);
+                        Logger.Error("error invoking child generator: {0} error: {1}", program, e.Message);
                     }
                 }
             }

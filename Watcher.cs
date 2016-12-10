@@ -34,8 +34,8 @@ namespace OTTProject
         public static void Main()
         {
             // set logger level and set console output settings
-            Logger.ConsoleOutput = false;
-            Logger.SetVerbosity(VerbosityEnum.LEVEL.DEBUG);
+            Logger.ConsoleOutput = true;
+            Logger.SetVerbosity(VerbosityEnum.LEVEL.NOTSET);
             Run();
         }
 
@@ -59,8 +59,7 @@ namespace OTTProject
         public static void ConsumeQueue(object stateInfo)
         {
             // too fast so put some sleep into it.
-            Thread.Sleep(500);
-            
+            Thread.Sleep(50);
             KeyValuePair<int, IGenerator> result = new KeyValuePair<int, IGenerator>();
             bool success = _queue.TryDequeue(out result);
             lock (_lock)

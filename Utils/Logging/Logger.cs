@@ -78,7 +78,10 @@ namespace OTTProject.Utils.Logging
         /// <param name="level"></param>
         public static void SetVerbosity(VerbosityEnum.LEVEL level)
         {
-            _VerbosityLevel = level;
+            lock (_lock)
+            {
+                _VerbosityLevel = level;
+            }
         }
 
         /// <summary>
@@ -105,10 +108,13 @@ namespace OTTProject.Utils.Logging
         private static string ParseMessage(VerbosityEnum.LEVEL level, params object[] messages)
         {
             string levelName = Enum.GetName(typeof(VerbosityEnum.LEVEL), level).ToLower();
+            // messages[0] contains string that might have {0}
+            
             messages[0] = "[" + levelName + "]: " + messages[0];
-            IList<object> tmp = new List<object>(messages);
-            tmp.RemoveAt(0);
-            string message = string.Format(messages[0].ToString(), tmp.ToArray());
+            LinkedList<object> tmp = new LinkedList<object>(messages);
+            object first = tmp.First.Value;
+            tmp.RemoveFirst();
+            string message = string.Format(first.ToString(), tmp.ToArray());
             // string concatenation happens at compile time so it's fine.
             return DateTime.Now.ToLongTimeString()
                  + " "
