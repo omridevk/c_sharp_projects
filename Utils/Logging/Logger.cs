@@ -84,6 +84,17 @@ namespace OTTProject.Utils.Logging
             }
         }
 
+        private static void Dump(VerbosityEnum.LEVEL level, params object[] messages)
+        {
+            if (_VerbosityLevel > level) return;
+            string output = ParseMessage(level, messages);
+            Console.WriteLine(output);            
+        }
+        public static void Dump(params object[] messages)
+        {
+            Dump(VerbosityEnum.LEVEL.DEBUG, messages);
+        }
+
         /// <summary>
         /// private for ease of use (no need to pass TextWriter instance)
         /// </summary>
@@ -91,15 +102,12 @@ namespace OTTProject.Utils.Logging
         /// <param name="w"></param>
         private static void Log(TextWriter w, VerbosityEnum.LEVEL level, params object[] messages)
         {
-            if (_VerbosityLevel > level) return;
+
             lock (_lock)
-            {    
+            {
+                if (_VerbosityLevel > level) return;
                 string output = ParseMessage(level, messages);
                 w.WriteLine(output);
-                if (ConsoleOutput)
-                {
-                    Console.WriteLine(output);
-                }
                 w.Flush();
             }
         }
