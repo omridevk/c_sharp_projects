@@ -97,14 +97,14 @@ namespace OTTProject
                 root = GenerateRoot();
             } catch(Exception e)
             {
-                Logger.Error(e.Message);
+                Logger.Critical(e.Message);
                 return root;
             }
             // maybe use var?
             IList<Tuple<string, Func<XElement, XElement>>> generatorsList = GetGenerators();
             if (generatorsList.Count == 0)
             {
-                Logger.Error("no generators found for {0}", this.GetType().Name);
+                Logger.Critical("no generators found for {0}", this.GetType().Name);
                 return root;
             }
             foreach (var program in programs)
@@ -127,7 +127,7 @@ namespace OTTProject
                 root.Save(outputPath);
             } catch (Exception e)
             {
-                Logger.Error("error saving file: {0}", e.Message);
+                Logger.Critical("error saving file: {0}", e.Message);
             }
             return root;
         }

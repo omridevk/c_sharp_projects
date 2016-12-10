@@ -94,10 +94,10 @@ namespace OTTProject
         /// <returns></returns>
         private IEnumerable<XElement> GetProgrammes()
         {
-            Logger.Info("fetching programmes from original XML");
-            return from programme in _RootElement.Elements(NameSpace + "programme")
-                   orderby (string)programme.Attribute("start")
-                   select programme;
+            Logger.Info("fetching programmes from original XML: {0}", _InputFilePath);
+            return _RootElement.Elements(NameSpace + "programme")
+                .OrderBy(program => (string)program.Attribute("start"))
+                .Select(program => program);
         }
 
         public override string ToString()
@@ -115,7 +115,7 @@ namespace OTTProject
             string id = (string) program.Attribute("external_id");
             string title = (string) program.Element(NameSpace + "title");
             string desc = (string)program.Element(NameSpace + "desc");
-            Logger.Info("generating program XML for program: {0}", id);
+            Logger.Debug("generating program XML for program: {0}", id);
             IEnumerable<XElement> metaTags = GenerateMeta(program);
             return new XElement("program",
                 new XAttribute("id", id),
@@ -138,7 +138,7 @@ namespace OTTProject
         /// <returns></returns>
         private IEnumerable<XElement> GenerateMeta(XElement program)
         {
-            Logger.Info("generating tags from MetaTags for program: {0}", (string) program.Attribute("external_id"));
+            Logger.Debug("generating tags from MetaTags for program: {0}", (string) program.Attribute("external_id"));
             IEnumerable<XElement> metas = program.Elements(NameSpace + "metas");
             IList<XElement> transformed = new List<XElement>();
             foreach (var meta in metas)
@@ -160,7 +160,7 @@ namespace OTTProject
 
         private XElement GenerateteSchedules(XElement program)
         {
-            Logger.Info("generating schedules for program: {0}", (string) program.Attribute("external_id"));
+            Logger.Debug("generating schedules for program: {0}", (string) program.Attribute("external_id"));
             string start = Helpers.FormatTime(
                 (string)program.Attribute("start"),
                 XTVDTimeFormatEnum.XTVD_INPUT_TIME_FORMAT,

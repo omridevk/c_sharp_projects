@@ -31,7 +31,6 @@ namespace OTTProject.Utils.Logging
             _w = File.AppendText(Path.Combine(dir, "log.txt"));
         }
         
-
         /// <summary>
         /// Public API to save the trouble of passing a textwriter instance.
         /// </summary>
@@ -71,6 +70,11 @@ namespace OTTProject.Utils.Logging
         {
             Log(VerbosityEnum.LEVEL.WARNING, messages);
         }
+
+        public static void Critical(params object[] messages)
+        {
+            Log(VerbosityEnum.LEVEL.CRITICAL, messages);
+        }
        
         /// <summary>
         /// Set the verbosity level.
@@ -91,15 +95,16 @@ namespace OTTProject.Utils.Logging
         /// <param name="w"></param>
         private static void Log(TextWriter w, VerbosityEnum.LEVEL level, params object[] messages)
         {
-            if (_VerbosityLevel > level) return;
+
             lock (_lock)
-            {    
+            {
+                if (_VerbosityLevel > level) return;
                 string output = ParseMessage(level, messages);
-                w.WriteLine(output);
                 if (ConsoleOutput)
                 {
                     Console.WriteLine(output);
                 }
+                w.WriteLine(output);
                 w.Flush();
             }
         }
