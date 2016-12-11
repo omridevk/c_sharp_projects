@@ -1,10 +1,11 @@
 ﻿using System;
 using System.IO;
 using System.Xml.Linq;
-using OTTProject.Utils;
 using OTTProject.Interfaces;
 using OTTProject.Utils.Logging;
 using System.Collections.Generic;
+using System.Linq;
+using OTTProject.Utils;
 
 namespace OTTProject
 {
@@ -18,22 +19,55 @@ namespace OTTProject
         /// XML Namespace to use in queries! possible bugs if not added as prefix all LINQ queries!
         /// </summary>
         protected XNamespace NameSpace { get; set; }
-
-
         /// <summary>
         /// Generated root element name
         /// </summary>
-        public abstract string RootName
-        {
-            get;
-        }
-
+        public abstract string RootName { get; }
         /// <summary>
         /// Root element to loaded XML
         /// </summary>
-        public abstract XElement RootElement
+        public abstract XElement RootElement { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        public abstract IEnumerable<XElement> Programs { get; }
+
+        public Generator(string file)
         {
-            get;
+            InputPath = file;
+            OutputPath = Helpers.GeneratePath(file, "_" + RootName);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private string _OutputPath { get; set; }
+        public string OutputPath
+        {
+            get
+            {
+                return _OutputPath;
+            }
+            set
+            {
+                _OutputPath = value;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private string _InputPath { get; set; }
+        public string InputPath
+        {
+            get
+            {
+                return _InputPath;
+            }
+            set
+            {
+                _InputPath = value;
+            }
         }
 
         /// <summary>
@@ -43,10 +77,10 @@ namespace OTTProject
         /// <returns></returns>
         protected XElement Load(string file)
         {
+
             XElement xelement = default(XElement);
             try
             {
-                
                 xelement = XElement.Load(file);
                 NameSpace = xelement.Name.Namespace;
                 Logger.Info("loaded file succesfully - {0}", Path.GetFileName(file));
@@ -59,26 +93,6 @@ namespace OTTProject
         }
 
         /// <summary>
-        /// Generate the root element, using the RootName the children classes configure.
-        /// </summary>
-        /// <returns></returns>
-        private XDocument GenerateRoot()
-        {
-            if (String.IsNullOrEmpty(RootName)) {
-                throw new Exception("Implementer didn't provide a root document name");
-            }
-            return new XDocument(
-               new XDeclaration("1.0", "UTF-8", null),
-               new XElement(RootName)
-           );
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        abstract public void Generate();
-
-        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
@@ -89,42 +103,30 @@ namespace OTTProject
         /// </summary>
         /// <param name="programs"></param>
         /// <returns></returns>
-        protected XDocument Generate(IEnumerable<XElement> programs, string outputPath)
+        public virtual XDocument Generate()
         {
-            XDocument root = default(XDocument);
-            try
-            {
-                root = GenerateRoot();
-            } catch(Exception e)
-            {
-                Logger.Critical(e.Message);
-                return root;
-            }
-            // maybe use var?
+            RootElement = Load(InputPath);
             IList<Tuple<string, Func<XElement, XElement>>> generatorsList = GetGenerators();
+            XDocument root = default(XDocument);
             if (generatorsList.Count == 0)
             {
-                Logger.Critical("no generators found for {0}", this.GetType().Name);
+                Logger.Critical("no generators functions were provided for: {0}, returning empty XDocument", GetType().Name);
                 return root;
             }
-            foreach (var program in programs)
-            {
-                // need to check if generators returns an empty list
-                foreach (var tuple in generatorsList)
-                {
-                    try
-                    {
-                        Helpers.FirstOrCreate(tuple.Item1, root.Root)
-                            .Add(tuple.Item2(program));
-                    } catch (Exception e)
-                    {
-                        Logger.Error("error invoking child generator: {0} error: {1}", program, e.Message);
-                    }
-                }
-            }
+            root =
+                new XDocument(
+                    new XDeclaration("1.0", "UTF-8", null),
+                    new XElement(RootName,
+                        generatorsList.Select( tuple => 
+                            new XElement(tuple.Item1, 
+                                Programs.Select(program => (tuple.Item2(program))
+                            ))
+                        )
+                    )
+                );
             try
             {
-                root.Save(outputPath);
+                root.Save(OutputPath);
             } catch (Exception e)
             {
                 Logger.Critical("error saving file: {0}", e.Message);

@@ -15,12 +15,32 @@ namespace OTTProject.Interfaces
         /// <summary>
         /// 
         /// </summary>
-        void Generate();
+        XDocument Generate();
 
         /// <summary>
         /// Generated root element name
         /// </summary>
         string RootName
+        {
+            get;
+        }
+
+        string OutputPath
+        {
+            get;
+            set;
+        }
+
+        string InputPath
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        IEnumerable<XElement> Programs
         {
             get;
         }
@@ -31,6 +51,7 @@ namespace OTTProject.Interfaces
         XElement RootElement
         {
             get;
+            set;
         }
     }
 

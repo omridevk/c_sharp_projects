@@ -16,18 +16,12 @@ namespace OTTProject
     public class XTVDGenerator : Generator
     {
 
+        public XTVDGenerator(string file) : base(file) { }
+
         /// <summary>
         /// Root element to loaded XML
         /// </summary>
         private XElement _RootElement;
-
-
-        /// <summary>
-        /// hold the output XML file name
-        /// </summary>
-        private string _OutputFilePath;
-
-        private string _InputFilePath;
 
         /// <summary>
         /// Generated root element name
@@ -40,6 +34,15 @@ namespace OTTProject
             }
         }
 
+        public override IEnumerable<XElement> Programs
+        {
+            get
+            {
+                return _RootElement.Elements(NameSpace + "programme")
+                    .OrderBy(program => (string)program.Attribute("start"))
+                    .Select(program => program);
+            }
+        }
         /// <summary>
         /// Reference to the rootElement.
         /// </summary>
@@ -49,17 +52,12 @@ namespace OTTProject
             {
                 return _RootElement;
             }
+            set
+            {
+                _RootElement = value;
+            }
         }
 
-        /// <summary>
-        /// set the file name and namespace attributes
-        /// </summary>
-        /// <param name="file"></param>
-        public XTVDGenerator(string file)
-        {
-            _InputFilePath = file;
-            _OutputFilePath = Helpers.GeneratePath(file, "_XTVD");
-        }
 
         /// <summary>
         /// Get a list that contains a tuple of string and lamdas/delegates that generates 
@@ -79,30 +77,17 @@ namespace OTTProject
         /// Start the generate process, call parent generate
         /// can do more stuff if needed.
         /// </summary>
-        public override void Generate()
+        public override XDocument Generate()
         {
-            _RootElement = Load(_InputFilePath);
-            IEnumerable<XElement> programmes = GetProgrammes();
-            XDocument generated = Generate(programmes, _OutputFilePath);
-            Logger.Info("done generating {0}, saved new file: {1}", _InputFilePath, _OutputFilePath);
-
-        }
-
-        /// <summary>
-        /// Get all programmes elements from the original XML.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerable<XElement> GetProgrammes()
-        {
-            Logger.Info("fetching programmes from original XML: {0}", _InputFilePath);
-            return _RootElement.Elements(NameSpace + "programme")
-                .OrderBy(program => (string)program.Attribute("start"))
-                .Select(program => program);
+  
+            XDocument generated = base.Generate();
+            Logger.Info("done generating {0}, saved new file: {1}", InputPath, OutputPath);
+            return generated;
         }
 
         public override string ToString()
         {
-            return Path.GetFileName(_OutputFilePath);
+            return Path.GetFileName(OutputPath);
         }
        
         /// <summary>
@@ -161,6 +146,7 @@ namespace OTTProject
         private XElement GenerateteSchedules(XElement program)
         {
             Logger.Debug("generating schedules for program: {0}", (string) program.Attribute("external_id"));
+            
             string start = Helpers.FormatTime(
                 (string)program.Attribute("start"),
                 XTVDTimeFormatEnum.XTVD_INPUT_TIME_FORMAT,
